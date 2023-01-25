@@ -28,9 +28,13 @@ public class Path implements Iterable<Direction> {
         return new PathIterator();
     }
 
-    private class PathIterator implements Iterator<Direction> {
+    public PathIterator pathIterator() {
+        return new PathIterator();
+    }
 
-        int index = 0;
+    public class PathIterator implements Iterator<Direction> {
+
+        private int index = 0;
 
         @Override
         public boolean hasNext() {
@@ -40,6 +44,10 @@ public class Path implements Iterable<Direction> {
         @Override
         public Direction next() {
             return directionList.get(index++);
+        }
+
+        public int getIndex() {
+            return index;
         }
     }
 }

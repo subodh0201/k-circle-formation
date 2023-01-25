@@ -5,6 +5,7 @@ import sbc.grid.Point;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Path implements Iterable<Direction> {
     private final Point start;
@@ -43,6 +44,8 @@ public class Path implements Iterable<Direction> {
 
         @Override
         public Direction next() {
+            if (!hasNext())
+                throw new NoSuchElementException("nothing left");
             return directionList.get(index++);
         }
 

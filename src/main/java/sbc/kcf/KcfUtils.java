@@ -10,21 +10,23 @@ import java.util.stream.Collectors;
 public class KcfUtils {
     private KcfUtils() {}
 
-    public static Point inverse(Point point) {
+    public static Point inversePoint(Point point) {
         return point == null ? null : new Point(-point.x, point.y);
     }
 
-    public static Direction inverse(Direction direction) {
+    public static Direction inverseDirection(Direction direction) {
         if (direction == Direction.L) return Direction.R;
         if (direction == Direction.R) return Direction.L;
         return direction;
     }
 
-    public static List<Direction> inverse(List<Direction> directionList) {
-        return directionList.stream().map(KcfUtils::inverse).collect(Collectors.toList());
+    public static List<Direction> inverseDirectionList(List<Direction> directionList) {
+        return directionList == null ? null :
+                directionList.stream().map(KcfUtils::inverseDirection).collect(Collectors.toList());
     }
 
-    public static Path inverse(Path path) {
-        return new Path(inverse(path.getStart()), inverse(path.getDirectionList()));
+    public static Path inversePath(Path path) {
+        return path == null ? null :
+                new Path(inversePoint(path.getStart()), inverseDirectionList(path.getDirectionList()));
     }
 }

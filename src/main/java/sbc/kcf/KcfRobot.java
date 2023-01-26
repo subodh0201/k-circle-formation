@@ -58,15 +58,15 @@ public class KcfRobot<C extends Invertible<C>> {
     }
 
     public Point transform(Point point) {
-        return xAxisAlignment ? point : KcfUtils.inverse(point);
+        return xAxisAlignment ? point : KcfUtils.inversePoint(point);
     }
 
     public Direction transform(Direction direction) {
-        return xAxisAlignment ? direction : KcfUtils.inverse(direction);
+        return xAxisAlignment ? direction : KcfUtils.inverseDirection(direction);
     }
 
     public Path transform(Path path) {
-        return xAxisAlignment ? path : KcfUtils.inverse(path);
+        return xAxisAlignment ? path : KcfUtils.inversePath(path);
     }
 
     public C transform(C config) {

@@ -12,8 +12,8 @@ class PointTest {
         Point b = new Point(9, 8);
 
         Point sum = a.add(b);
-        assertEquals(sum.x, 5+9);
-        assertEquals(sum.y, 7+8);
+        assertEquals(5+9, sum.x);
+        assertEquals(7+8, sum.y);
 
         assertEquals(sum, b.add(a));
     }
@@ -25,8 +25,8 @@ class PointTest {
         Point b = new Point(9, 8);
 
         Point diff = a.subtract(b);
-        assertEquals(diff.x, 5-9);
-        assertEquals(diff.y, 7-8);
+        assertEquals(5-9, diff.x);
+        assertEquals(7-8, diff.y);
     }
 
 }

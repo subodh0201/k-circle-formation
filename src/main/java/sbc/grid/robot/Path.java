@@ -2,10 +2,7 @@ package sbc.grid.robot;
 
 import sbc.grid.Point;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class Path implements Iterable<Direction> {
     private final Point start;
@@ -33,6 +30,19 @@ public class Path implements Iterable<Direction> {
         return new PathIterator();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Path path = (Path) o;
+        return Objects.equals(start, path.start) && Objects.equals(directionList, path.directionList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, directionList);
+    }
+
     public class PathIterator implements Iterator<Direction> {
 
         private int index = 0;
@@ -51,6 +61,12 @@ public class Path implements Iterable<Direction> {
 
         public int getIndex() {
             return index;
+        }
+
+        public Direction peekNext() {
+            if (!hasNext())
+                throw new NoSuchElementException("nothing left");
+            return directionList.get(index);
         }
     }
 }

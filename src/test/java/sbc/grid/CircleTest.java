@@ -7,9 +7,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CircleTest {
-    private static final Point center = new Point(0, 0);
-    private static final int radius = 8;
-    private static final int[][] points =
+    private final Point center = new Point(0, 0);
+    private final int radius = 8;
+    private final int[][] points =
             {{0, 8},          {0, -8},
             {1, 8}, {-1, 8}, {-1, -8}, {1, -8},
             {2, 8}, {-2, 8}, {-2, -8}, {2, -8},
@@ -22,15 +22,15 @@ class CircleTest {
             {8, 1}, {-8, 1}, {-8, -1}, {8, -1},
             {8, 0}, {-8, 0},                 };
 
-    private static final Circle circle = new Circle(center, radius);
+    private final Circle circle = new Circle(center, radius);
 
     @Test
     void getPointsOnCircle() {
-        assertEquals(circle.radius, radius);
-        assertEquals(circle.center, center);
+        assertEquals(radius, circle.radius);
+        assertEquals(center, circle.center);
 
         Set<Point> pointsOnCircle = circle.getPointsOnCircle();
-        assertEquals(pointsOnCircle.size(), points.length);
+        assertEquals(points.length, pointsOnCircle.size());
         for (int[] point : points) {
             assertTrue(pointsOnCircle.contains(new Point(point[0], point[1])));
         }

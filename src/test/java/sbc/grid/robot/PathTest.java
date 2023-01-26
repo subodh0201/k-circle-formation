@@ -10,15 +10,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PathTest {
 
-    Point start = new Point(7, 3);
+    private final Point start = new Point(7, 3);
 
-    List<Direction> directionList = List.of(
+    private final List<Direction> directionList = List.of(
         Direction.U, Direction.U, Direction.U, Direction.D, Direction.R, Direction.U, Direction.D,
         Direction.R, Direction.R, Direction.L, Direction.U, Direction.U, Direction.L, Direction.L
     );
 
     Path path = new Path(start, directionList);
-
 
     @Test
     void getStart() {
@@ -36,6 +35,7 @@ class PathTest {
         for (int i = 0; i < directionList.size(); i++) {
             assertEquals(i, pathIterator.getIndex());
             assertTrue(pathIterator.hasNext());
+            assertEquals(directionList.get(i), pathIterator.peekNext());
             assertEquals(directionList.get(i), pathIterator.next());
         }
         assertEquals(directionList.size(), pathIterator.getIndex());

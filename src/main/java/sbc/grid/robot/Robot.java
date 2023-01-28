@@ -75,4 +75,12 @@ public class Robot<C> {
     public int getPathIteratorIndex() {
         return currentPathIterator == null ? -1 : currentPathIterator.getIndex();
     }
+
+    @Override
+    public String toString() {
+        return "Robot{" + position +
+                ", " + currentPath +
+                ", " + (currentPathIterator == null? "null" : currentPathIterator.getIndex()) +
+                '}';
+    }
 }

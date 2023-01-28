@@ -72,4 +72,11 @@ public class KcfRobot<C extends Invertible<C>> {
     public C transform(C config) {
         return xAxisAlignment ? config : config.inverse();
     }
+
+    @Override
+    public String toString() {
+        return "KcfRobot{" + robot +
+                ", " + xAxisAlignment +
+                '}';
+    }
 }

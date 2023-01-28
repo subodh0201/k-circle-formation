@@ -43,6 +43,13 @@ public class Path implements Iterable<Direction> {
         return Objects.hash(start, directionList);
     }
 
+    @Override
+    public String toString() {
+        return "Path{" + start +
+                ", " + directionList +
+                '}';
+    }
+
     public class PathIterator implements Iterator<Direction> {
 
         private int index = 0;

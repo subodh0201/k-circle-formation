@@ -21,6 +21,11 @@ class KcfUtilsTest {
 
     Path path = new Path(start, directionList);
 
+    private final List<Point> pointList = List.of(
+            new Point(5, 7), new Point(0, 0), new Point(-3, 4), new Point(0, 1), new Point(0, -10),
+            new Point(-5, -7), new Point(21310, 110), new Point(-332131, 23124), new Point(123, 2132131)
+    );
+
     @Test
     void testInversePoint() {
         assertNull(KcfUtils.inversePoint(null));
@@ -32,7 +37,26 @@ class KcfUtilsTest {
     }
 
     @Test
-    void testInverseDirectionTest() {
+    void inversePointList() {
+        assertNull(KcfUtils.inversePointList(null));
+        List<Point> invPointList = KcfUtils.inversePointList(pointList);
+        assertEquals(pointList.size(), invPointList.size());
+        for (int i = 0; i < pointList.size(); i++) {
+            assertEquals(-pointList.get(i).x, invPointList.get(i).x);
+            assertEquals(pointList.get(i).y, invPointList.get(i).y);
+        }
+    }
+
+    @Test
+    void inverseCircle() {
+    }
+
+    @Test
+    void inverseCircleList() {
+    }
+
+    @Test
+    void testInverseDirection() {
         assertNull(KcfUtils.inverseDirection(null));
         assertEquals(Direction.U, KcfUtils.inverseDirection(Direction.U));
         assertEquals(Direction.D, KcfUtils.inverseDirection(Direction.D));

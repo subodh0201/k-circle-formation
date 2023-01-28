@@ -13,12 +13,15 @@ public class KcfConfig implements Invertible<KcfConfig> {
     private final Point position;
     private final KcfConfig inverse;
 
-    public KcfConfig(List<Point> robots, List<Circle> circles, Point position) {
+    public KcfConfig(
+            List<Point> robots, List<Point> invRobots,
+            List<Circle> circles, List<Circle> invCircles,
+            Point position
+    ) {
         this.robots = Collections.unmodifiableList(robots);
         this.circles = Collections.unmodifiableList(circles);
         this.position = position;
-        this.inverse = new KcfConfig(KcfUtils.inversePointList(robots),
-                KcfUtils.inverseCircleList(circles), KcfUtils.inversePoint(position), this);
+        this.inverse = new KcfConfig(invRobots, invCircles, KcfUtils.inversePoint(position), this);
     }
 
     public KcfConfig(List<Point> robots, List<Circle> circles, Point position, KcfConfig inverse) {

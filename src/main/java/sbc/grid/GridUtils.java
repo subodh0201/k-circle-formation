@@ -2,6 +2,7 @@ package sbc.grid;
 
 import sbc.grid.robot.Direction;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,5 +40,20 @@ public class GridUtils {
 
     public static List<Point> shiftOrigin(List<Point> points, Point origin) {
         return points.stream().map(p -> p.subtract(origin)).collect(Collectors.toList());
+    }
+
+    public static<C> boolean unique(List<C> list) {
+        return list.size() == new HashSet<>(list).size();
+    }
+
+    public static boolean overLappingCircles(Iterable<Circle> circles) {
+        HashSet<Point> points = new HashSet<>();
+        for (Circle circle : circles) {
+            for (Point point : circle.getPointsOnCircle()) {
+                if (!points.add(point))
+                    return false;
+            }
+        }
+        return true;
     }
 }

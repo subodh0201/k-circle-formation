@@ -27,6 +27,10 @@ public class Point {
         return subtract(that.x, that.y);
     }
 
+    public double distance(Point that) {
+        return Math.sqrt((this.x - that.x) * (this.x - that.x) + (this.y - that.y) * (this.y - that.y));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -19,13 +19,14 @@ package sbc.gui;
 public class GridViewPort {
     // minimum size of a tile in pixels
     public static final int MIN_TILE_SIZE = 4;
+    public static final int DEFAULT_TILE_SIZE = 16;
 
     // size of the display canvas in pixels
     private int width;
     private int height;
 
     // size of a tile in pixels
-    private int tileSize = 16;
+    private int tileSize;
 
     // x and y grid coordinates of tile (0,0)
     private int topLeftX;
@@ -34,33 +35,24 @@ public class GridViewPort {
     // x and y offset of the (0,0) tile from the
     // top left corner of the screen in fraction
     // of the tile size normalized to be in (-1, 0]
-    private double offsetX = 0;
-    private double offsetY = 0;
+    private double offsetX;
+    private double offsetY;
 
 
     /**
      * @param width width of the canvas in pixels
      * @param height height of the canvas in pixels
-     * @param tileSize size of a tile in pixels
-     * @param topLeftX gridX coordinate of top-left point
-     * @param topLeftY gridY coordinate of top-left point
-     * @param offsetX x offset in pixels of the left-most tiles
-     * @param offsetY y offset in pixels of the top-most tiles
      */
-    public GridViewPort(
-            int width, int height,
-            int tileSize,
-            int topLeftX, int topLeftY,
-            int offsetX, int offsetY
-    ) {
+    public GridViewPort(int width, int height) {
         this.width = width;
         this.height = height;
-        this.topLeftX = topLeftX;
-        this.topLeftY = topLeftY;
-        setTileSize(tileSize);
-        addOffset(offsetX, offsetY);
+        this.topLeftX = 0;
+        this.topLeftY = 0;
+        setTileSize(DEFAULT_TILE_SIZE);
+        addOffset(width / 2 - tileSize / 2, height / 2 - tileSize / 2);
         normalizeOffset();
     }
+
 
     // ********** Getters **********
 
@@ -244,6 +236,14 @@ public class GridViewPort {
      */
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public void reset() {
+        this.topLeftX = 0;
+        this.topLeftY = 0;
+        setTileSize(DEFAULT_TILE_SIZE);
+        addOffset(width / 2 - tileSize / 2, height / 2 - tileSize / 2);
+        normalizeOffset();
     }
 
     // ********** Conversion Functions **********

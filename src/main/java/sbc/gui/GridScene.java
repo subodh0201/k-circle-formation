@@ -3,9 +3,6 @@ package sbc.gui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class GridScene extends JPanel {
 
@@ -13,7 +10,8 @@ public class GridScene extends JPanel {
     private final GridViewPort gridViewPort;
 
     private final EventQueue eventQueue = new EventQueue();
-    private final List<GridEntity> entities = Collections.synchronizedList(new ArrayList<>());
+    private final Background background = new Background();
+    private GridEntity entity;
 
     public GridScene() {
         this.setBackground(Color.BLACK);
@@ -32,13 +30,14 @@ public class GridScene extends JPanel {
         this.addMouseWheelListener(new ZoomPanHandler());
         this.addComponentListener(new ResizeHandler());
 
+        this.gridViewPort = new GridViewPort(this.getWidth(), this.getHeight());
 
-        this.gridViewPort = new GridViewPort(this.getWidth(), this.getHeight(), 16, 0, 0,
-                this.getWidth() / 2, this.getHeight() / 2);
+        this.drawLoop.start();
     }
 
-    public void addEntity(GridEntity e) {
-        entities.add(e);
+    public void setEntity(GridEntity e) {
+        this.entity = e;
+        this.gridViewPort.reset();
     }
 
     public void start() {
@@ -60,16 +59,16 @@ public class GridScene extends JPanel {
             eventQueue.dequeue().consume();
 
         // update all entities
-        for (GridEntity e : entities)
-            e.update();
+        if (entity != null)
+            entity.update();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
-        for (GridEntity e : entities)
-            e.render(g2D, gridViewPort);
+        background.render(g2D, gridViewPort);
+        if (entity != null) entity.render(g2D, gridViewPort);
         g2D.dispose();
     }
 
@@ -98,21 +97,17 @@ public class GridScene extends JPanel {
         }
     }
 
-    private class ResizeHandler implements ComponentListener {
-
+    private class ResizeHandler extends ComponentAdapter {
+        boolean firstResize = true;
         @Override
         public void componentResized(ComponentEvent e) {
             gridViewPort.setWidth(getWidth());
             gridViewPort.setHeight(getHeight());
+            if (firstResize) {
+                gridViewPort.reset();
+                firstResize = false;
+            }
+
         }
-
-        @Override
-        public void componentMoved(ComponentEvent e) {}
-
-        @Override
-        public void componentShown(ComponentEvent e) {}
-
-        @Override
-        public void componentHidden(ComponentEvent e) {}
     }
 }

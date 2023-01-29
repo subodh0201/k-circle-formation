@@ -4,6 +4,7 @@ import sbc.grid.Point;
 import sbc.gui.App;
 import sbc.kcf.KcfAlgorithm;
 import sbc.kcf.KcfSimulation;
+import sbc.kcf.KcfSimulationRenderer;
 
 import javax.swing.*;
 import java.util.List;
@@ -23,6 +24,6 @@ public class Main {
 
     public static void startApp() {
         App app = new App("K Circle Formation");
-        app.addSimulation(new KcfSimulation(robotPosition, KcfAlgorithm::ULDR, centers, 3));
+        app.setGridEntity(new KcfSimulationRenderer(new KcfSimulation(robotPosition, KcfAlgorithm::ULDR, centers, 3)));
     }
 }

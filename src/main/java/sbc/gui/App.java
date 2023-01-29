@@ -1,8 +1,5 @@
 package sbc.gui;
 
-import sbc.kcf.KcfSimulation;
-import sbc.kcf.KcfSimulationRenderer;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -21,9 +18,7 @@ public class App extends JFrame {
         this.setVisible(true);
     }
 
-    public void addSimulation(KcfSimulation  kcfSimulation) {
-        this.gridScene.addEntity(new Background());
-        this.gridScene.addEntity(new KcfSimulationRenderer(kcfSimulation));
-        this.gridScene.start();
+    public void setGridEntity(GridEntity gridEntity) {
+        this.gridScene.setEntity(gridEntity);
     }
 }

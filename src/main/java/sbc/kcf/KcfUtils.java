@@ -5,6 +5,7 @@ import sbc.grid.Point;
 import sbc.grid.robot.Direction;
 import sbc.grid.robot.Path;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,5 +43,12 @@ public class KcfUtils {
     public static Path inversePath(Path path) {
         return path == null ? null :
                 new Path(inversePoint(path.getStart()), inverseDirectionList(path.getDirectionList()));
+    }
+
+    public static List<Boolean> getRandomBooleanList(int size) {
+        List<Boolean> list = new ArrayList<>();
+        while (size-- > 0)
+            list.add(Math.random() < 0.5);
+        return list;
     }
 }

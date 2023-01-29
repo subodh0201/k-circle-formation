@@ -6,78 +6,38 @@ import sbc.grid.Point;
 import sbc.grid.robot.Algorithm;
 import sbc.grid.robot.Direction;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class KcfSimulation {
+    private final KcfSetup kcfSetup;
+
     private final List<KcfRobot<KcfConfig>> robots;
-    private final int n;
-    private final List<Circle> circles;
-    private final List<Circle> invCircles;
-    private final int m;
-    private final int k;
-    private KcfState state;
-    private int round;
-    private KcfPhase phase;
-    private final Point origin;
     private List<Point> robotPositions;
     private List<Point> invRobotPositions;
 
+    private final List<Circle> circles;
+    private final List<Circle> invCircles;
 
-    public KcfSimulation(
-            List<Point> robotPositions, Algorithm<List<Direction>, KcfConfig> algorithm,
-            List<Point> centers, int radius
-    ) {
-        // check nulls
-        if (robotPositions == null) throw new IllegalArgumentException("robotPositions is null");
-        if (centers == null) throw new IllegalArgumentException("centers is null");
-        if (algorithm == null) throw new IllegalArgumentException("algorithm is null");
+    private KcfState state;
+    private int round;
+    private KcfPhase phase;
 
-        // check radius
-        if (radius < 1) throw new IllegalArgumentException("radius < 1");
-
-        n = robotPositions.size();
-        m = centers.size();
-
-        // check n and m > 0
-        if (n == 0) throw new IllegalArgumentException("n is 0");
-        if (m == 0) throw new IllegalArgumentException("m is 0");
-
-        k = n / m;
-
-        // is n divisible by m?
-        if (n % m != 0) throw new IllegalArgumentException("n is not divisible by m");
-
-        // are circles big enough?
-        if (new Circle(new Point(0, 0), radius).getPointsOnCircle().size() < k)
-            throw new IllegalArgumentException("circles cannot fit k robots");
-
-        // check robots and centers are unique
-        if (!GridUtils.unique(robotPositions))
-            throw new IllegalArgumentException("robot positions not unique");
-        if (!GridUtils.unique(centers))
-            throw new IllegalArgumentException("centers not unique");
-
-        // shift origin to center of mass of centers
-        origin = GridUtils.centerOfMass(centers);
-        robotPositions = robotPositions.stream().map(p -> p.subtract(origin)).collect(Collectors.toUnmodifiableList());
-        centers = centers.stream().map(p -> p.subtract(origin)).collect(Collectors.toUnmodifiableList());
-
-        this.robotPositions = robotPositions;
+    public KcfSimulation(KcfSetup setup, Algorithm<List<Direction>, KcfConfig> algorithm) {
+        this.kcfSetup = setup;
+        this.robotPositions = kcfSetup.getRobotPositions();
         this.invRobotPositions = Collections.unmodifiableList(KcfUtils.inversePointList(this.robotPositions));
-
-        // create circle list
-        circles = centers.stream().map(c -> new Circle(c, radius)).collect(Collectors.toUnmodifiableList());
-        invCircles = Collections.unmodifiableList(KcfUtils.inverseCircleList(circles));
-
-        // check overlapping circles
-        if (!GridUtils.overLappingCircles(circles))
-            throw new IllegalArgumentException("Overlapping circles");
+        this.circles = kcfSetup.getCircles();
+        this.invCircles = Collections.unmodifiableList(KcfUtils.inverseCircleList(this.circles));
 
         // create robot list
-        robots = robotPositions.stream().map(p -> new KcfRobot<>(p, algorithm, Math.random() < 0.5))
-                .collect(Collectors.toUnmodifiableList());
+        List<KcfRobot<KcfConfig>> robotList = new ArrayList<>();
+        for (int i = 0; i < robotPositions.size(); i++) {
+            robotList.add(new KcfRobot<>(robotPositions.get(i), algorithm, kcfSetup.getXAxisAlignments().get(i)));
+        }
+        robots = Collections.unmodifiableList(robotList);
 
         round = 0;
         phase = KcfPhase.LOOK;
@@ -85,24 +45,28 @@ public class KcfSimulation {
                 : solved() ? KcfState.SOLVED : KcfState.SOLVING;
     }
 
+    public KcfSetup getKcfSetup() {
+        return kcfSetup;
+    }
+
     public List<KcfRobot<KcfConfig>> getRobots() {
         return robots;
     }
 
-    public int getN() {
-        return n;
+    public List<Point> getRobotPositions() {
+        return robotPositions;
+    }
+
+    public List<Point> getInvRobotPositions() {
+        return invRobotPositions;
     }
 
     public List<Circle> getCircles() {
         return circles;
     }
 
-    public int getM() {
-        return m;
-    }
-
-    public int getK() {
-        return k;
+    public List<Circle> getInvCircles() {
+        return invCircles;
     }
 
     public KcfState getState() {
@@ -117,23 +81,7 @@ public class KcfSimulation {
         return phase;
     }
 
-    public Point getOrigin() {
-        return origin;
-    }
-
-    public List<Point> getRobotPositions() {
-        return robotPositions;
-    }
-
-    public List<Circle> getInvCircles() {
-        return invCircles;
-    }
-
-    public List<Point> getInvRobotPositions() {
-        return invRobotPositions;
-    }
-
-    public KcfConfig getCurrentConfig(Point position) {
+    private KcfConfig getCurrentConfig(Point position) {
         return new KcfConfig(robotPositions, invRobotPositions, circles, invCircles, position);
     }
 
@@ -195,9 +143,9 @@ public class KcfSimulation {
 
     public boolean solved() {
         if (!GridUtils.unique(robotPositions)) return false;
-        int[] counts = new int[m];
+        int[] counts = new int[kcfSetup.getM()];
         for (KcfRobot<KcfConfig> robot : robots) {
-            for (int i = 0; i < m; i++) {
+            for (int i = 0; i < kcfSetup.getM(); i++) {
                 if (circles.get(i).getPointsOnCircle().contains(robot.getPosition())) {
                     counts[i]++;
                     break;
@@ -205,7 +153,7 @@ public class KcfSimulation {
             }
         }
         for (int count : counts)
-            if (count != k) return false;
+            if (count != kcfSetup.getK()) return false;
         return true;
     }
 

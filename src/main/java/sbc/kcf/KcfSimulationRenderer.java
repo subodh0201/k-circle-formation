@@ -2,6 +2,7 @@ package sbc.kcf;
 
 import sbc.grid.Point;
 import sbc.grid.Circle;
+import sbc.grid.robot.Path;
 import sbc.gui.GridEntity;
 import sbc.gui.GridViewPort;
 
@@ -11,7 +12,9 @@ public class KcfSimulationRenderer implements GridEntity {
     private final Color centerColor = Color.ORANGE;
     private final Color circleColor = Color.GREEN;
     private final Color robotColor = Color.RED;
-    private final Color pathColor = Color.GRAY;
+    private final Color pathColor = Color.gray;
+    private final Color pathStart = Color.GREEN;
+    private final Color pathEnd = Color.BLUE;
 
     private final KcfSimulation simulation;
     private int delay;
@@ -40,6 +43,7 @@ public class KcfSimulationRenderer implements GridEntity {
     @Override
     public void render(Graphics2D graphics2D, GridViewPort gridViewPort) {
         renderCircles(graphics2D, gridViewPort);
+        renderPaths(graphics2D, gridViewPort);
         renderRobots(graphics2D, gridViewPort);
     }
 
@@ -61,11 +65,34 @@ public class KcfSimulationRenderer implements GridEntity {
         }
     }
 
+    private void renderPaths(Graphics2D g, GridViewPort v) {
+        for (KcfRobot<KcfConfig> robot : simulation.getRobots()) {
+            renderPath(g, v, robot.getCurrentPath());
+        }
+    }
+
+    private void renderPath(Graphics2D g, GridViewPort v, Path path) {
+        if (path == null || path.getPointList().size() == 0) return;
+        g.setColor(pathColor);
+        for (Point p : path.getPointList()) {
+            renderTileOutline(g, v, p.x, p.y);
+        }
+        g.setColor(pathStart);
+        renderTileOutline(g, v, path.getPointList().get(0).x, path.getPointList().get(0).y);
+        g.setColor(pathEnd);
+        renderTileOutline(g, v, path.getPointList().get(path.getPointList().size() - 1).x,
+                path.getPointList().get(path.getPointList().size() - 1).y);
+    }
+
     private void renderTile(Graphics2D g, GridViewPort v, int x, int y) {
         g.fillRect(v.gridToScreenX(x), v.gridToScreenY(y), v.tileSize(), v.tileSize());
     }
 
     private void renderCircleOnTile(Graphics2D g, GridViewPort v, int x, int y) {
         g.fillOval(v.gridToScreenX(x), v.gridToScreenY(y), v.tileSize(), v.tileSize());
+    }
+
+    private void renderTileOutline(Graphics2D g, GridViewPort v, int x, int y) {
+        g.drawRect(v.gridToScreenX(x), v.gridToScreenY(y), v.tileSize(), v.tileSize());
     }
 }

@@ -2,6 +2,7 @@ package sbc.kcf;
 
 import sbc.grid.robot.Direction;
 
+import java.util.Collections;
 import java.util.List;
 
 public class KcfAlgorithm {
@@ -14,7 +15,7 @@ public class KcfAlgorithm {
     );
 
     public static List<Direction> ULDR(KcfConfig config) {
-        return directionList;
+        return Math.random() < 0.5 ? directionList : Collections.emptyList();
     }
 
 }

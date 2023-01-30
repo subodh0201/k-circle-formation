@@ -1,5 +1,6 @@
 package sbc.grid.robot;
 
+import sbc.grid.GridUtils;
 import sbc.grid.Point;
 
 import java.util.*;
@@ -7,10 +8,19 @@ import java.util.*;
 public class Path implements Iterable<Direction> {
     private final Point start;
     private final List<Direction> directionList;
+    private final List<Point> pointList;
 
     public Path(Point start, List<Direction> directionList) {
         this.start = start;
         this.directionList = Collections.unmodifiableList(directionList);
+
+        List<Point> points = new ArrayList<>();
+        points.add(start);
+        for (Direction d : directionList) {
+            points.add(GridUtils.move(points.get(points.size() - 1), d));
+        }
+        this.pointList = Collections.unmodifiableList(points);
+
     }
 
     public Point getStart() {
@@ -19,6 +29,10 @@ public class Path implements Iterable<Direction> {
 
     public List<Direction> getDirectionList() {
         return directionList;
+    }
+
+    public List<Point> getPointList() {
+        return pointList;
     }
 
     @Override

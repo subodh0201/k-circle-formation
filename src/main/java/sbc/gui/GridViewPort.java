@@ -243,7 +243,6 @@ public class GridViewPort {
         this.topLeftY = 0;
         this.offsetX = 0;
         this.offsetY = 0;
-        setTileSize(DEFAULT_TILE_SIZE);
         addOffset(width / 2 - tileSize / 2, height / 2 - tileSize / 2);
         normalizeOffset();
     }

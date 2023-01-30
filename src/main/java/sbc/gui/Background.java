@@ -8,7 +8,7 @@ public class Background implements GridEntity {
     public final Color axisBorders;
 
     public Background() {
-        this(Color.WHITE, new Color(245, 245, 245), Color.BLUE);
+        this(Color.WHITE, new Color(245, 245, 245), new Color(0, 220, 220));
     }
 
     public Background(Color oddTiles, Color evenTiles, Color axisBorders) {

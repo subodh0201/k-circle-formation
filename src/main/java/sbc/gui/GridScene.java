@@ -101,8 +101,7 @@ public class GridScene extends JPanel {
         boolean firstResize = true;
         @Override
         public void componentResized(ComponentEvent e) {
-            gridViewPort.setWidth(getWidth());
-            gridViewPort.setHeight(getHeight());
+            gridViewPort.setCanvasSize(getWidth(), getHeight());
             if (firstResize) {
                 gridViewPort.reset();
                 firstResize = false;

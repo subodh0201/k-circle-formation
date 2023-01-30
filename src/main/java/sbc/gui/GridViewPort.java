@@ -241,9 +241,20 @@ public class GridViewPort {
     public void reset() {
         this.topLeftX = 0;
         this.topLeftY = 0;
+        this.offsetX = 0;
+        this.offsetY = 0;
         setTileSize(DEFAULT_TILE_SIZE);
         addOffset(width / 2 - tileSize / 2, height / 2 - tileSize / 2);
         normalizeOffset();
+    }
+
+    public void setCanvasSize(int width, int height) {
+        int diffWidth = width - this.width;
+        int diffHeight = height - this.height;
+        this.width = width;
+        this.height = height;
+        addOffset(diffWidth / 2, diffHeight / 2);
+
     }
 
     // ********** Conversion Functions **********

@@ -2,7 +2,7 @@ package sbc.grid;
 
 import java.util.Objects;
 
-public class Point {
+public class Point implements Comparable<Point> {
     public final int x;
     public final int y;
 
@@ -47,5 +47,10 @@ public class Point {
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
+    }
+
+    @Override
+    public int compareTo(Point o) {
+        return y != o.y ? Integer.compare(y, o.y) : Integer.compare(x, o.x);
     }
 }

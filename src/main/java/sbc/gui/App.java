@@ -1,6 +1,6 @@
 package sbc.gui;
 
-import sbc.kcf.KcfAlgorithm;
+import sbc.kcf.AlgorithmOneAxis;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +20,7 @@ public class App extends JFrame {
         this.gridScene = new GridScene();
         this.add(gridScene, BorderLayout.CENTER);
 
-        this.controlPanel = new KcfSimulationControl(gridScene, KcfAlgorithm::ULDR);
+        this.controlPanel = new KcfSimulationControl(gridScene, new AlgorithmOneAxis());
         this.add(controlPanel, BorderLayout.SOUTH);
 
         this.setVisible(true);

@@ -99,6 +99,7 @@ public class KcfSimulation {
     }
 
     private void look() {
+        System.out.println("Round: " + this.round + ",  Phase: Look");
         updateRobotPositions();
         state = error() ? KcfState.ERROR : solved() ? KcfState.SOLVED : KcfState.SOLVING;
         if (state == KcfState.SOLVING)
@@ -106,10 +107,12 @@ public class KcfSimulation {
     }
 
     private void compute() {
+        System.out.println("Round: " + this.round + ",  Phase: Compute");
         for (KcfRobot<KcfConfig> robot : robots) {
             robot.lookAndCompute(getCurrentConfig(robot.getPosition()));
         }
         this.phase = KcfPhase.MOVE;
+        System.out.println("Round: " + this.round + ",  Phase: Move");
     }
 
     private void move() {
@@ -129,7 +132,9 @@ public class KcfSimulation {
                     robot.move();
             }
             updateRobotPositions();
-            if (error()) state = KcfState.ERROR;
+            if (error()) {
+                state = KcfState.ERROR;
+            }
         }
     }
 
@@ -155,10 +160,13 @@ public class KcfSimulation {
         }
         for (int count : counts)
             if (count != kcfSetup.getK()) return false;
+        System.out.println("SOLVED");
         return true;
     }
 
     public boolean error() {
-        return !GridUtils.unique(robotPositions);
+        boolean error = !GridUtils.unique(robotPositions);
+        if (error) System.out.println("Could not compute: robot collision");
+        return error;
     }
 }

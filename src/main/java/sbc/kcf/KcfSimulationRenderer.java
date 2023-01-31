@@ -7,14 +7,16 @@ import sbc.gui.GridEntity;
 import sbc.gui.GridViewPort;
 
 import java.awt.*;
+import java.util.HashSet;
 
 public class KcfSimulationRenderer implements GridEntity {
     private final Color centerColor = Color.ORANGE;
     private final Color circleColor = Color.GREEN;
-    private final Color robotColor = Color.RED;
+    private final Color robotColor = Color.BLUE;
     private final Color pathColor = Color.gray;
     private final Color pathStart = Color.GREEN;
     private final Color pathEnd = Color.BLUE;
+    private final Color errorTile = Color.RED;
 
     private final KcfSimulation simulation;
     private int delay;
@@ -44,7 +46,10 @@ public class KcfSimulationRenderer implements GridEntity {
     public void render(Graphics2D graphics2D, GridViewPort gridViewPort) {
         renderCircles(graphics2D, gridViewPort);
         renderPaths(graphics2D, gridViewPort);
+        if (simulation.getState() == KcfState.ERROR)
+            renderError(graphics2D, gridViewPort);
         renderRobots(graphics2D, gridViewPort);
+
     }
 
     private void renderCircles(Graphics2D g, GridViewPort v) {
@@ -53,6 +58,16 @@ public class KcfSimulationRenderer implements GridEntity {
             renderTile(g, v, c.center.x, c.center.y);
             g.setColor(circleColor);
             for (Point p : c.getPointsOnCircle()) {
+                renderTile(g, v, p.x, p.y);
+            }
+        }
+    }
+
+    private void renderError(Graphics2D g, GridViewPort v) {
+        g.setColor(errorTile);
+        HashSet<Point> robots = new HashSet<>();
+        for (Point p : simulation.getRobotPositions()) {
+            if (!robots.add(p)) {
                 renderTile(g, v, p.x, p.y);
             }
         }

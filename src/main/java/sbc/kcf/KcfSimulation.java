@@ -129,6 +129,7 @@ public class KcfSimulation {
                     robot.move();
             }
             updateRobotPositions();
+            if (error()) state = KcfState.ERROR;
         }
     }
 

@@ -28,6 +28,14 @@ public class GridUtils {
         }
     }
 
+    public static Direction pointToDirection(Point point) {
+        if (point.equals(POINT_U)) return Direction.U;
+        if (point.equals(POINT_D)) return Direction.D;
+        if (point.equals(POINT_L)) return Direction.L;
+        if (point.equals(POINT_R)) return Direction.R;
+        return null;
+    }
+
     public static Point centerOfMass(Iterable<Point> points) {
         int x = 0, y = 0, n = 0;
         for (Point point : points) {

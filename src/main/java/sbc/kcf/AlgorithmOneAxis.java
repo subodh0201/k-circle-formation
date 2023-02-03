@@ -309,29 +309,8 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
             System.out.println("Path: " + directionList);
         }
 
-        private static List<Direction> getPath(Point src, Point dest) {
-            int diffX = dest.x - src.x;
-            int diffY = dest.y - src.y;
-            List<Direction> directionList = new ArrayList<>();
-            while (diffX != 0) {
-                if (diffX < 0) {
-                    directionList.add(Direction.L);
-                    diffX++;
-                } else {
-                    directionList.add(Direction.R);
-                    diffX--;
-                }
-            }
-            while (diffY != 0) {
-                if (diffY < 0) {
-                    directionList.add(Direction.D);
-                    diffY++;
-                } else {
-                    directionList.add(Direction.U);
-                    diffY--;
-                }
-            }
-            return directionList;
+        private  List<Direction> getPath(Point src, Point dest) {
+            return new KcfAStar(src, dest, config).getDirectionList();
         }
 
 

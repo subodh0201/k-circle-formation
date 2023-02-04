@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class KcfHalfPlanes {
-    private List<Point> R_HL1;
-    private List<Point> R_HL2;
-    private List<Point> R_Axis;
+    private final List<Point> R_HL1;
+    private final List<Point> R_HL2;
+    private final List<Point> R_Axis;
 
-    private List<KcfCircle> F_HL1;
-    private List<KcfCircle> F_HL2;
-    private List<KcfCircle> F_Axis;
+    private final List<KcfCircle> F_HL1;
+    private final List<KcfCircle> F_HL2;
+    private final List<KcfCircle> F_Axis;
 
     public KcfHalfPlanes(List<Point> R, List<KcfCircle> F) {
         R_HL1 = R.stream().filter(r -> r.x > 0).collect(Collectors.toUnmodifiableList());

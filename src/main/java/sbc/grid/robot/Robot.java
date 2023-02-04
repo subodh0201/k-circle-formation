@@ -17,8 +17,8 @@ import java.util.NoSuchElementException;
  *   of direction.
  * - Move corresponds to moving along the path set during the compute phase
  * Look and compute is executed in a single call to the method
- * lookAndCompute(C config). This methods sets up the path that the robot
- * will take and calls to move, moves the robot along the path.
+ * lookAndCompute(C config). This method sets up the path that the robot
+ * will take. Calls to move(), moves the robot along the path.
  * Once the robot reaches the destination calls to move  don't move the robot
  * and returns false.
  * @param <C> Data type that the algorithm accepts as argument for compute.

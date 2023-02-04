@@ -17,7 +17,7 @@ class PathTest {
         Direction.R, Direction.R, Direction.L, Direction.U, Direction.U, Direction.L, Direction.L
     );
 
-    Path path = new Path(start, directionList);
+    private final Path path = new Path(start, directionList);
 
     @Test
     void getStart() {

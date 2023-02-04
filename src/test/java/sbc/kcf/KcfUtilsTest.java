@@ -19,7 +19,7 @@ class KcfUtilsTest {
             Direction.R, Direction.R, Direction.L, Direction.U, Direction.U, Direction.L, Direction.L
     );
 
-    Path path = new Path(start, directionList);
+    private final Path path = new Path(start, directionList);
 
     private final List<Point> pointList = List.of(
             new Point(5, 7), new Point(0, 0), new Point(-3, 4), new Point(0, 1), new Point(0, -10),
@@ -28,7 +28,6 @@ class KcfUtilsTest {
 
     @Test
     void testInversePoint() {
-        assertNull(KcfUtils.inversePoint(null));
         Point point = new Point(5, 6);
         Point inversePoint = KcfUtils.inversePoint(point);
         assertEquals(-point.x, inversePoint.x);

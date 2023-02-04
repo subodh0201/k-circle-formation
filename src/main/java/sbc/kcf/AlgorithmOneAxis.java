@@ -18,13 +18,13 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
         private final KcfConfig config;
         private List<Direction> directionList = new ArrayList<>();
 
-        public List<Point> R;
-        public Set<Point> setR;
-        public List<Point> F;
-        public Set<Point> setF;
+        private final List<Point> R;
+        private final Set<Point> setR;
+        private final List<Point> F;
+        private final Set<Point> setF;
         private final int k;
-        public final List<KcfCircle> kcfCircles;
-        public KcfHalfPlanes kcfHalfPlanes;
+        private final List<KcfCircle> kcfCircles;
+        private final KcfHalfPlanes kcfHalfPlanes;
         private final int balance;
         private final Set<Point> candidates;
 

@@ -7,9 +7,6 @@ import java.awt.*;
 
 public class App extends JFrame {
 
-    private final GridScene gridScene;
-    private final KcfSimulationControl controlPanel;
-
     public App(String title) {
         super(title);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -17,10 +14,10 @@ public class App extends JFrame {
         this.setBackground(Color.CYAN);
         this.setLayout(new BorderLayout());
 
-        this.gridScene = new GridScene();
+        GridScene gridScene = new GridScene();
         this.add(gridScene, BorderLayout.CENTER);
 
-        this.controlPanel = new KcfSimulationControl(gridScene, new AlgorithmOneAxis());
+        KcfSimulationControl controlPanel = new KcfSimulationControl(gridScene, new AlgorithmOneAxis());
         this.add(controlPanel, BorderLayout.SOUTH);
 
         this.setVisible(true);

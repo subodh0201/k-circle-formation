@@ -58,9 +58,9 @@ public class KcfAStar {
     }
 
     private class Node implements Comparable<Node> {
-        Point point;
-        int distance;
-        Node parent;
+        final Point point;
+        final int distance;
+        final Node parent;
 
         Node(Point point, Node parent) {
             this.point = point;

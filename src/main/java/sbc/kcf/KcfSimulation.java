@@ -144,7 +144,20 @@ public class KcfSimulation {
     }
 
     public boolean unsolvable() {
-        return false;
+        KcfConfig config = getCurrentConfig(new Point(0, 0));
+        int k = config.getRobots().size() / config.getCircles().size();
+        List<Point> R = config.getRobots();
+        List<Point> F = config.getCircles().stream().map(circle -> circle.center)
+                .collect(Collectors.toUnmodifiableList());
+        List<KcfCircle> kcfCircles = config.getCircles().stream()
+                .map(circle -> new KcfCircle(circle, R, k))
+                .collect(Collectors.toUnmodifiableList());
+        KcfHalfPlanes kcfHalfPlanes = new KcfHalfPlanes(config.getRobots(), kcfCircles);
+        AlgorithmOneAxis.ConfigType ct =
+                AlgorithmOneAxis.ConfigType.getConfigType(R, F, kcfHalfPlanes);
+        boolean isUnsolvable = AlgorithmOneAxis.isUnsolvable(ct, k);
+        if (isUnsolvable) System.out.println("UNSOLVABLE");
+        return isUnsolvable;
     }
 
     public boolean solved() {

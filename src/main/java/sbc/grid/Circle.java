@@ -39,10 +39,9 @@ public class Circle {
 
     @Override
     public String toString() {
-        return "Circle{" + center +
+        return "{" + center +
                 ", " + radius +
-                ", " + pointsOnCircle +
-                '}';
+                "}";
     }
 
     public static Set<Point> findPointsOnCircle(Point center, int radius) {

@@ -34,4 +34,9 @@ public class KcfCircle {
     public int getSaturation() {
         return saturation;
     }
+
+    @Override
+    public String toString() {
+        return circle.toString();
+    }
 }

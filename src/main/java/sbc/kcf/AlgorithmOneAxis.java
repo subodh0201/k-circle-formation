@@ -16,7 +16,7 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
 
     private static class AlgorithmOneAxisSolver {
         private final KcfConfig config;
-        private List<Direction> directionList = new ArrayList<>();
+        private List<Direction> directionList = Collections.emptyList();
 
         private final List<Point> R;
         private final Set<Point> setR;
@@ -26,12 +26,12 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
         private final List<KcfCircle> kcfCircles;
         private final KcfHalfPlanes kcfHalfPlanes;
         private final int balance;
+        private final ConfigType configType;
         private final Set<Point> candidates;
 
-        private ConfigType configType;
 
+        // Used by algorithmOneAxis()
         private AgreementOneAxisResult agreementOneAxisResult;
-
         private KcfCircle target1, target2;
         private Point candidate1, candidate2;
 
@@ -47,45 +47,34 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
             this.kcfCircles = config.getCircles().stream().map(circle -> new KcfCircle(circle, R, k))
                     .collect(Collectors.toUnmodifiableList());
             this.kcfHalfPlanes = new KcfHalfPlanes(R, kcfCircles);
-            this.balance = balance(R);
+            this.balance = kcfHalfPlanes.getR_HL1().size() - kcfHalfPlanes.getR_HL2().size();
+            this.configType = ConfigType.getConfigType(R, F, kcfHalfPlanes);
+            this.candidates = Set.copyOf(getCandidates(R, kcfCircles));
 
-            Set<Point> _candidates = new HashSet<>(R);
-            for (KcfCircle circle : kcfCircles) {
-                if (circle.getSaturation() == 0)
-                    _candidates.removeAll(circle.getRobotsOnCircle());
+
+            System.out.print(config.getPosition() + ": " + configType + " balance=" + balance);
+
+            if (isFinalState(kcfCircles, k)) {
+                System.out.println("SOLVED");
+            } else if (isUnsolvable(configType, k)) {
+                System.out.println("UNSOLVABLE");
+            } else {
+                algorithmOneAxis();
+                System.out.print(" " + agreementOneAxisResult);
+                System.out.print(" t1=" + target1);
+                System.out.print(" t2=" + target2);
+                System.out.print(" c1=" + candidate1);
+                System.out.print(" c2=" + candidate2);
+                System.out.println(" " + directionList);
             }
-            this.candidates = Set.copyOf(_candidates);
-
-            setConfigType();
-            System.out.println("Config Type: " + configType);
-
-            if (isFinalState(kcfCircles, k) || isUnsolvable(configType, k)) {
-                setDirectionList();
-                return;
-            }
-
-            algorithmOneAxis();
-            setDirectionList();
-        }
-
-        public KcfConfig getConfig() {
-            return config;
         }
 
         public List<Direction> getDirectionList() {
             return directionList;
         }
 
-        private void setDirectionList() {
-            this.directionList = Collections.unmodifiableList(this.directionList);
-        }
-
-        private void setConfigType() {
-            if (!symmetricAboutYAxis(F)) configType = ConfigType.I1;
-            else if (!symmetricAboutYAxis(R)) configType = ConfigType.I2;
-            else if (kcfHalfPlanes.getR_Axis().size() != 0) configType = ConfigType.I3;
-            else if (kcfHalfPlanes.getF_Axis().size() == 0) configType = ConfigType.I4;
-            else configType = ConfigType.I5;
+        private void setDirectionList(List<Direction> directionList) {
+            this.directionList = Collections.unmodifiableList(directionList);
         }
 
         private Point CR(Point p) {
@@ -97,29 +86,36 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
 
         private void algorithmOneAxis() {
             agreementOneAxis();
-            System.out.println("AgreementOneAxis: " + agreementOneAxisResult);
             if (agreementOneAxisResult == AgreementOneAxisResult.CHANGE_TO_UNBALANCED) {
                 changeToUnbalanced();
             }
             else if (agreementOneAxisResult == AgreementOneAxisResult.ALIGNED
                     || agreementOneAxisResult == AgreementOneAxisResult.MISALIGNED) {
-                tFPSWithAxisA();
-                cRSWithAxisAgreement();
-                if (config.getPosition().equals(candidate1)) {
-                    moveTo(target1);
+                KcfCircle target = tFPSWithAxisAgreement();
+                Point candidate = cRSWithAxisAgreement(target);
+                if (config.getPosition().equals(candidate)) {
+                    moveTo(target);
                 }
-            } else {
+                target1 = target;
+                candidate1 = candidate;
+            }
+            else {
                 if (allSaturated(kcfHalfPlanes.getF_HL1()) && allSaturated(kcfHalfPlanes.getF_HL2())) {
-                    tFPSWithoutAAFy();
-                    cRSWithoutAAFy();
+                    KcfCircle target = tFPSWithoutAAFy();
+                    cRSWithoutAAFy(target);
+                    if (config.getPosition().equals(candidate1))
+                        moveTo(target);
+                    if (config.getPosition().equals(candidate2))
+                        moveTo(target);
+                    target1 = target;
                 } else {
                     tFPSWithoutAA();
                     cRSWithoutAA();
+                    if (config.getPosition().equals(candidate1))
+                        moveTo(target1);
+                    if (config.getPosition().equals(candidate2))
+                        moveTo(target2);
                 }
-                if (config.getPosition().equals(candidate1))
-                    moveTo(target1);
-                if (config.getPosition().equals(candidate2))
-                    moveTo(target1);
             }
         }
 
@@ -147,9 +143,9 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
                         else agreementOneAxisResult = AgreementOneAxisResult.MISALIGNED;
                     } else {
                         // TODO
-                        if (!hasUnsaturated(kcfHalfPlanes.getF_HL1())) {
+                        if (AlgorithmOneAxis.allSaturated(kcfHalfPlanes.getF_HL1())) {
                             agreementOneAxisResult = AgreementOneAxisResult.ALIGNED;
-                        } else if (!hasUnsaturated(kcfHalfPlanes.getF_HL2())) {
+                        } else if (AlgorithmOneAxis.allSaturated(kcfHalfPlanes.getF_HL2())) {
                             agreementOneAxisResult = AgreementOneAxisResult.MISALIGNED;
                         } else if (kcfHalfPlanes.getR_Axis().size() > 0)
                                 agreementOneAxisResult = AgreementOneAxisResult.CHANGE_TO_UNBALANCED;
@@ -174,69 +170,92 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
             }
         }
 
-
-
-        // Changed!
+        // Moving top most robot on y-axis to HL1
         private void changeToUnbalanced() {
-            Point topMost = kcfHalfPlanes.getR_Axis().get(0);
-            for (Point r : kcfHalfPlanes.getR_Axis())
-                if (r.y > topMost.y) topMost = r;
-            int targetY = topMost.y;
-            if (kcfHalfPlanes.getR_HL1().size() > 0) {
-                Point topMostInHL1 = kcfHalfPlanes.getR_HL1().get(0);
-                for (Point r : kcfHalfPlanes.getR_HL1())
-                    if (r.y > topMostInHL1.y) topMostInHL1 = r;
-                targetY = topMostInHL1.y + 2;
-            }
-            if (config.getPosition().equals(topMost))
-                directionList = getPath(topMost, new Point(1, targetY));
+            Point topMostRobotAxis = topMostPoint(kcfHalfPlanes.getR_Axis());
+
+            if (topMostRobotAxis == null)
+                throw new IllegalStateException("No robots on y-axis");
+            int targetY = topMostRobotAxis.y;
+
+            Point topMostRobotHL1 = topMostPoint(kcfHalfPlanes.getR_HL1());
+            if (topMostRobotHL1 != null)
+                targetY = Math.max(targetY, topMostRobotHL1.y + 2);
+
+            if (config.getPosition().equals(topMostRobotHL1))
+                setDirectionList(getPath(topMostRobotAxis, new Point(1, targetY)));
         }
 
 
 
         // TargetFPSelection with Axis Agreement
-        private void tFPSWithAxisA() {
-            target1 = getHighestCRUnsaturatedCircle(kcfCircles);
+        private KcfCircle tFPSWithAxisAgreement() {
+            KcfCircle target = getTargetCircle(kcfCircles);
+            if (target == null)
+                throw new IllegalStateException("Could not find a target circle!");
+            return target;
         }
 
+
         // TargetFPSelection without Axis Agreement with unsaturated fixed points only on y-axis
-        private void tFPSWithoutAAFy() {
-            target1 = getHighestCRUnsaturatedCircle(kcfHalfPlanes.getF_Axis());
+        private KcfCircle tFPSWithoutAAFy() {
+            KcfCircle target = getTargetCircle(kcfHalfPlanes.getF_Axis());
+            if (target == null)
+                throw new IllegalStateException("Could not find a target circle on axis");
+            return target;
         }
+
 
         // TargetFPSelection without Axis Agreement with unsaturated fixed points in both half planes
         private void tFPSWithoutAA() {
-            target1 = getHighestCRUnsaturatedCircle(kcfHalfPlanes.getF_HL1());
-            target2 = getHighestCRUnsaturatedCircle(kcfHalfPlanes.getF_HL2());
+            target1 = getTargetCircle(kcfHalfPlanes.getF_HL1());
+            if (target1 == null)
+                throw new IllegalStateException("Could not find a target circle in HL1");
+            target2 = getTargetCircle(kcfHalfPlanes.getF_HL2());
+            if (target2 == null)
+                throw new IllegalStateException("Could not find a target circle in HL2");
         }
 
 
 
 
         // Candidate selection with axis agreement
-        private void cRSWithAxisAgreement() {
-            Point f = target1.getCircle().center;
+        private Point cRSWithAxisAgreement(KcfCircle target) {
+            Point f = target.getCircle().center;
+
             Set<Point> candidates = new HashSet<>(this.candidates);
-            candidates.removeAll(target1.getRobotsOnCircle());
-            candidate1 = findCandidate(f, candidates);
+            candidates.removeAll(target.getRobotsOnCircle());
+
+            Point candidate = findCandidate(f, candidates);
+            if (candidate == null)
+                throw new IllegalStateException("Could not find candidate");
+            return candidate;
         }
 
 
         // Candidate selection with axis agreement and target on y-axis
-        private void cRSWithoutAAFy() {
-            Point f = target1.getCircle().center;
+        private void cRSWithoutAAFy(KcfCircle target) {
+            Point f = target.getCircle().center;
+
             Set<Point> candidates = new HashSet<>(this.candidates);
-            candidates.removeAll(target1.getRobotsOnCircle());
+            candidates.removeAll(target.getRobotsOnCircle());
+
             Point candidate = findCandidate(f, candidates);
+            if (candidate == null)
+                throw new IllegalStateException("Could not find candidate");
+
             if (!candidates.contains(KcfUtils.inversePoint(candidate))) {
                 candidate1 = candidate;
-            } else {
+            }
+            else {
                 // if symmetric configuration
-                if (configType == ConfigType.I3 || configType == ConfigType.I4 || configType == ConfigType.I5) {
+                if (!asymmetricAboutYAxis(R)) {
                     candidate1 = candidate;
                     candidate2 = KcfUtils.inversePoint(candidate);
-                } else {
+                }
+                else {
                     Point hcr = null;
+
                     for (Point r : R ) {
                         if (r.x == 0) continue;
                         if (setR.contains(KcfUtils.inversePoint(r))) continue;
@@ -244,6 +263,10 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
                         else if (CR(r).compareTo(CR(hcr)) > 0)
                             hcr = r;
                     }
+
+                    if (hcr == null)
+                        throw new IllegalStateException("Could not find an asymmetric robot");
+
                     if (hcr.x * candidate.x > 0) candidate1 = candidate;
                     else candidate1 = KcfUtils.inversePoint(candidate);
                 }
@@ -253,18 +276,18 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
 
         private void cRSWithoutAA() {
             // HL1
-            Set<Point> hl1Candidates = new HashSet<>(candidates);
-            kcfHalfPlanes.getR_HL2().forEach(hl1Candidates::remove);
-            kcfHalfPlanes.getR_Axis().forEach(hl1Candidates::remove);
-            hl1Candidates.removeAll(target1.getRobotsOnCircle());
-            candidate1 = findCandidate(target1.getCircle().center, hl1Candidates);
+            Set<Point> HL1Candidates = new HashSet<>(candidates);
+            kcfHalfPlanes.getR_HL2().forEach(HL1Candidates::remove);
+            kcfHalfPlanes.getR_Axis().forEach(HL1Candidates::remove);
+            HL1Candidates.removeAll(target1.getRobotsOnCircle());
+            candidate1 = findCandidate(target1.getCircle().center, HL1Candidates);
 
             // HL2
-            Set<Point> hl2Candidates = new HashSet<>(candidates);
-            kcfHalfPlanes.getR_HL1().forEach(hl1Candidates::remove);
-            kcfHalfPlanes.getR_Axis().forEach(hl1Candidates::remove);
-            hl1Candidates.removeAll(target2.getRobotsOnCircle());
-            candidate2 = findCandidate(target2.getCircle().center, hl2Candidates);
+            Set<Point> HL2Candidates = new HashSet<>(candidates);
+            kcfHalfPlanes.getR_HL1().forEach(HL2Candidates::remove);
+            kcfHalfPlanes.getR_Axis().forEach(HL2Candidates::remove);
+            HL2Candidates.removeAll(target2.getRobotsOnCircle());
+            candidate2 = findCandidate(target2.getCircle().center, HL2Candidates);
 
         }
 
@@ -288,92 +311,59 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
 
 
         private void moveTo(KcfCircle circle) {
-            System.out.println("Target: " + target1.getCircle().center);
-            System.out.println("Candidate: " + candidate1);
-
-
             Point pos = config.getPosition();
-            Set<Point> targets = new HashSet<>(circle.getCircle().getPointsOnCircle());
-            targets.removeAll(circle.getRobotsOnCircle());
+            Set<Point> points = new HashSet<>(circle.getCircle().getPointsOnCircle());
+            points.removeAll(circle.getRobotsOnCircle());
 
-            Point targetPoint = null;
-            for (Point target : targets) {
-                if (targetPoint == null)
-                    targetPoint = target;
-                else if (target.distance(pos) < targetPoint.distance(pos))
-                    targetPoint = target;
-            }
-
-            directionList = getPath(pos, targetPoint);
-
-            System.out.println("Path: " + directionList);
-        }
-
-        private  List<Direction> getPath(Point src, Point dest) {
-            return new KcfAStar(src, dest, config).getDirectionList();
-        }
-
-
-        private KcfCircle getHighestCRUnsaturatedCircle(List<KcfCircle> circles) {
-            PriorityQueue<KcfCircle> pqC = new PriorityQueue<>(
-                    (u, v) -> CR(v.getCircle().center).compareTo(CR(u.getCircle().center))
-            );
-            pqC.addAll(circles);
-            while (!pqC.isEmpty()) {
-                KcfCircle circle = pqC.remove();
-                if (circle.getSaturation() < 0) {
-                    return circle;
-                }
-            }
-            return null;
-        }
-
-        private Point getHighestCRPoint(List<Point> points) {
-            if (points.isEmpty()) return null;
-            Point hcr = points.get(0);
+            Point target = null;
             for (Point point : points) {
-                if (CR(point).compareTo(CR(hcr)) > 0) {
-                    hcr = point;
+                if (target == null) target = point;
+                else if (point.distance(pos) < target.distance(pos))
+                    target = point;
+            }
+
+            if (target == null)
+                throw new IllegalStateException("Could not find an open spot on the circle");
+
+            setDirectionList(getPath(pos, target));
+        }
+
+        private  List<Direction> getPath(Point start, Point dest) {
+            return new KcfAStar(start, dest, config).getDirectionList();
+        }
+
+
+        // Finds the unsaturated circle with the highest configuration rank
+        private KcfCircle getTargetCircle(List<KcfCircle> circles) {
+            KcfCircle target = null;
+            for (KcfCircle circle : circles) {
+                if (circle.getSaturation() < 0) {
+                    if (target == null ) target = circle;
+                    else if (CR(circle.getCircle().center).compareTo(CR(target.getCircle().center)) > 0)
+                        target = circle;
                 }
             }
-            return hcr;
+            return target;
         }
-
-        private boolean allSaturated(List<KcfCircle> circles) {
-            for (KcfCircle circle : circles)
-                if (circle.getSaturation() != 0)
-                    return false;
-            return true;
-        }
-
-        private boolean hasUnsaturated(List<KcfCircle> circles) {
-            for (KcfCircle circle : circles)
-                if (circle.getSaturation() < 0)
-                    return true;
-            return false;
-        }
-
-
     }
 
     enum ConfigType {
-        I1, I2, I3, I4, I5
+        I1, I2, I3, I4, I5;
+
+        public static ConfigType getConfigType(List<Point> R, List<Point> F, KcfHalfPlanes kcfHalfPlanes) {
+            if (asymmetricAboutYAxis(F)) return ConfigType.I1;
+            if (asymmetricAboutYAxis(R)) return ConfigType.I2;
+            if (kcfHalfPlanes.getR_Axis().size() != 0) return ConfigType.I3;
+            if (kcfHalfPlanes.getF_Axis().size() == 0) return ConfigType.I4;
+            return ConfigType.I5;
+        }
     }
 
     enum AgreementOneAxisResult {
         ALIGNED, MISALIGNED, CANNOT_AGREE, CHANGE_TO_UNBALANCED
     }
 
-    public static boolean symmetricAboutYAxis(List<Point> points) {
-        HashSet<Point> set = new HashSet<>();
-        for (Point point : points) {
-            if (point.x == 0) continue;
-            if (set.contains(KcfUtils.inversePoint(point))) {
-                set.remove(KcfUtils.inversePoint(point));
-            } else set.add(point);
-        }
-        return set.isEmpty();
-    }
+
 
 
     public static boolean isFinalState(List<KcfCircle> circles, int k) {
@@ -381,7 +371,6 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
             if (circle.getRobotsOnCircle().size() != k)
                 return false;
         }
-        System.out.println("Final State");
         return true;
     }
 
@@ -389,12 +378,42 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
         return configType == ConfigType.I5 && k % 2 == 1;
     }
 
-    public static int balance(List<Point> R) {
-        int count = 0;
-        for (Point r : R) {
-            if (r.x > 0) count++;
-            if (r.x < 0) count--;
+
+
+    // CLEANUP
+    public static Set<Point> getCandidates(List<Point> R, List<KcfCircle> kcfCircles) {
+        Set<Point> candidates = new HashSet<>(R);
+        for (KcfCircle circle : kcfCircles) {
+            if (circle.getSaturation() == 0)
+                candidates.removeAll(circle.getRobotsOnCircle());
         }
-        return count;
+        return candidates;
+    }
+
+    public static boolean allSaturated(List<KcfCircle> circles) {
+        for (KcfCircle circle : circles)
+            if (circle.getSaturation() < 0)
+                return false;
+        return true;
+    }
+
+    public static boolean asymmetricAboutYAxis(List<Point> points) {
+        HashSet<Point> set = new HashSet<>();
+        for (Point point : points) {
+            if (point.x == 0) continue;
+            if (set.contains(KcfUtils.inversePoint(point))) {
+                set.remove(KcfUtils.inversePoint(point));
+            } else set.add(point);
+        }
+        return !set.isEmpty();
+    }
+
+    public static Point topMostPoint(List<Point> points) {
+        if (points.isEmpty()) return null;
+        Point topMost = points.get(0);
+        for (Point point : points) {
+            if (point.y > topMost.y) topMost = point;
+        }
+        return topMost;
     }
 }

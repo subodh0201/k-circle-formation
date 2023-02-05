@@ -55,9 +55,9 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
             System.out.print(config.getPosition() + ": " + configType + " balance=" + balance);
 
             if (isFinalState(kcfCircles, k)) {
-                System.out.println("SOLVED");
+                System.out.println(" SOLVED");
             } else if (isUnsolvable(configType, k)) {
-                System.out.println("UNSOLVABLE");
+                System.out.println(" UNSOLVABLE");
             } else {
                 algorithmOneAxis();
                 System.out.print(" " + agreementOneAxisResult);

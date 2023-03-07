@@ -99,6 +99,7 @@ public class KcfSimulation {
     }
 
     private void look() {
+        System.out.println("----------------------------------------");
         System.out.println("Round: " + this.round + ",  Phase: Look");
         updateRobotPositions();
         state = error() ? KcfState.ERROR : solved() ? KcfState.SOLVED : KcfState.SOLVING;

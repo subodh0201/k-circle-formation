@@ -143,9 +143,11 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
                         else agreementOneAxisResult = AgreementOneAxisResult.MISALIGNED;
                     } else {
                         // TODO
-                        if (AlgorithmOneAxis.allSaturated(kcfHalfPlanes.getF_HL1())) {
+                        boolean allSaturatedH1 = AlgorithmOneAxis.allSaturated(kcfHalfPlanes.getF_HL1());
+                        boolean allSaturatedH2 = AlgorithmOneAxis.allSaturated(kcfHalfPlanes.getF_HL2());
+                        if (allSaturatedH1 && !allSaturatedH2) {
                             agreementOneAxisResult = AgreementOneAxisResult.ALIGNED;
-                        } else if (AlgorithmOneAxis.allSaturated(kcfHalfPlanes.getF_HL2())) {
+                        } else if (!allSaturatedH1 && allSaturatedH2) {
                             agreementOneAxisResult = AgreementOneAxisResult.MISALIGNED;
                         } else if (kcfHalfPlanes.getR_Axis().size() > 0)
                                 agreementOneAxisResult = AgreementOneAxisResult.CHANGE_TO_UNBALANCED;

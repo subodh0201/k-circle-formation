@@ -13,6 +13,7 @@ public class KcfSimulationRenderer implements GridEntity {
     private final Color centerColor = Color.ORANGE;
     private final Color circleColor = Color.GREEN;
     private final Color robotColor = Color.BLUE;
+    private final Color misalignedRobotColor = Color.RED;
     private final Color pathColor = Color.gray;
     private final Color pathStart = Color.GREEN;
     private final Color pathEnd = Color.BLUE;
@@ -74,8 +75,9 @@ public class KcfSimulationRenderer implements GridEntity {
     }
 
     private void renderRobots(Graphics2D g, GridViewPort v) {
-        g.setColor(robotColor);
         for (KcfRobot<KcfConfig> robot : simulation.getRobots()) {
+            if (robot.isxAxisAlignment()) g.setColor(robotColor);
+            else g.setColor(misalignedRobotColor);
             renderCircleOnTile(g, v, robot.getPosition().x, robot.getPosition().y);
         }
     }

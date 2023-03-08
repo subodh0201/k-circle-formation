@@ -100,19 +100,22 @@ public class KcfSetup {
             List<Point> rp = new ArrayList<>();
             List<Boolean> al = new ArrayList<>();
             List<Circle> c = new ArrayList<>();
-            int n = Integer.parseInt(in.nextLine());
-            while (n-- > 0) {
-                String line = in.nextLine();
-                String[] split = line.split(" ");
-                rp.add(new Point(Integer.parseInt(split[0]), Integer.parseInt(split[1])));
-                if (split.length > 2) 
-                    al.add(Integer.parseInt(split[2]) == 1);
-                else al.add(Math.random() < 0.5);
-            }
+
             int m = Integer.parseInt(in.nextLine());
             while (m-- > 0) {
-                c.add(new Circle(new Point(in.nextInt(), in.nextInt()), in.nextInt()));
+                Scanner ls = new Scanner(in.nextLine());
+                c.add(new Circle(new Point(ls.nextInt(), ls.nextInt()), ls.nextInt()));
             }
+
+            int n = Integer.parseInt(in.nextLine());
+            while (n-- > 0) {
+                Scanner ls = new Scanner(in.nextLine());
+                rp.add(new Point(ls.nextInt(), ls.nextInt()));
+                if (ls.hasNextInt())
+                    al.add(ls.nextInt() != 0);
+                else al.add(Math.random() < 0.5);
+            }
+
             return new KcfSetup(rp, al, c);
         }
     }

@@ -182,10 +182,23 @@ public class AlgorithmOneAxis implements Algorithm<List<Direction>, KcfConfig> {
 
             Point topMostRobotHL1 = topMostPoint(kcfHalfPlanes.getR_HL1());
             if (topMostRobotHL1 != null)
-                targetY = Math.max(targetY, topMostRobotHL1.y + 2);
+                targetY = Math.max(targetY, topMostRobotHL1.y);
+
+            targetY += (int) (2 + getLambda(config.getPosition()));
 
             if (config.getPosition().equals(topMostRobotAxis))
                 setDirectionList(getPath(topMostRobotAxis, new Point(1, targetY)));
+        }
+
+        private double getLambda(Point cur) {
+            double max = 0;
+            for (Point f : F) {
+                for (Point r : R) {
+                    if (r.equals(cur)) continue;
+                    max = Math.max(max, f.distance(r));
+                }
+            }
+            return max;
         }
 
 
